@@ -303,7 +303,13 @@ class WDCL():
                                 flags_remaining = False
                         else:
                             flags_remaining = False
-                    
+
+                    # Bound the frame buffer to avoid unbounded memory growth
+                    # from a link that never sends a closing HDLC flag byte.
+                    if len(self.frame_buffer) > self.HW_MTU:
+                        RNS.log("Pending HDLC frame exceeded maximum size on "+str(self)+", discarding buffer", RNS.LOG_ERROR)
+                        self.frame_buffer = b""
+
         except Exception as e:
             self.online = False
             self.wdcl_connected = False

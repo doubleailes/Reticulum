@@ -449,7 +449,7 @@ class PacketReceipt:
     # Validate a raw proof for a link
     def validate_link_proof(self, proof, link, proof_packet=None):
         # TODO: Hardcoded as explicit proofs for now
-        if True or len(proof) == PacketReceipt.EXPL_LENGTH:
+        if len(proof) == PacketReceipt.EXPL_LENGTH:
             # This is an explicit proof
             proof_hash = proof[:RNS.Identity.HASHLENGTH//8]
             signature = proof[RNS.Identity.HASHLENGTH//8:RNS.Identity.HASHLENGTH//8+RNS.Identity.SIGLENGTH//8]

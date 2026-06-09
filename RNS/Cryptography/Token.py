@@ -30,6 +30,7 @@
 
 import os
 import time
+import hmac as _hmac
 
 from RNS.Cryptography import HMAC
 from RNS.Cryptography import PKCS7
@@ -80,7 +81,7 @@ class Token():
             received_hmac = token[-32:]
             expected_hmac = HMAC.new(self._signing_key, token[:-32]).digest()
 
-            if received_hmac == expected_hmac: return True
+            if _hmac.compare_digest(received_hmac, expected_hmac): return True
             else: return False
 
 

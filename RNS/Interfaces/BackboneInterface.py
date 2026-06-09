@@ -731,6 +731,14 @@ class BackboneClientInterface(Interface):
                     else:
                         flags_remaining = False
 
+                # Bound the frame buffer to avoid unbounded memory growth
+                # from a peer that never sends a closing HDLC flag byte.
+                if len(self.frame_buffer) > self.HW_MTU:
+                    RNS.log("Pending HDLC frame exceeded maximum size on "+str(self)+", tearing down interface", RNS.LOG_ERROR)
+                    self.frame_buffer = b""
+                    self.online = False
+                    self.teardown()
+
             else:
                 self.online = False
                 if self.initiator and not self.detached:

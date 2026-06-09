@@ -168,6 +168,19 @@ class Resource:
         try:
             adv = ResourceAdvertisement.unpack(advertisement_packet.plaintext)
 
+            # Validate peer-advertised sizes before allocating any buffers. A
+            # single resource segment can never exceed MAX_EFFICIENT_SIZE on the
+            # sending side, so reject advertisements claiming larger transfers to
+            # prevent a malicious peer from triggering huge memory allocations
+            # (total_parts is derived directly from adv.t below).
+            size_limit = 2 * Resource.MAX_EFFICIENT_SIZE
+            if not all(isinstance(v, int) for v in (adv.t, adv.d, adv.l, adv.i)) \
+               or adv.t < 1 or adv.t > size_limit \
+               or adv.d < 0 or adv.d > size_limit \
+               or adv.l < 1 or adv.i < 0:
+                RNS.log("Dropping resource advertisement with invalid or oversized parameters", RNS.LOG_DEBUG) if RNS.sl(RNS.LOG_DEBUG) else None
+                return None
+
             resource = Resource(None, advertisement_packet.link, request_id = request_id)
             resource.status = Resource.TRANSFERRING
 

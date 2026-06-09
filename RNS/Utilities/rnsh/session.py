@@ -199,9 +199,11 @@ class ListenerSession:
         RNS.log(f"initiator_identified {identity} on link {outlet}", RNS.LOG_INFO)
         if self.state not in [LSState.LSSTATE_WAIT_IDENT, LSState.LSSTATE_WAIT_VERS]:
             self._protocol_error(LSState.LSSTATE_WAIT_IDENT.name)
+            return
 
         if not self.allow_all and identity.hash not in self.allowed_identity_hashes and identity.hash not in self.allowed_file_identity_hashes:
             self.terminate("Identity is not allowed.")
+            return
 
         self.remote_identity = identity
         self._set_state(LSState.LSSTATE_WAIT_VERS)
