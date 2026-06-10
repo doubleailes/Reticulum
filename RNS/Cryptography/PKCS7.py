@@ -41,8 +41,16 @@ class PKCS7:
     @staticmethod
     def unpad(data, bs=BLOCKSIZE):
         l = len(data)
+        if l == 0 or l % bs != 0:
+            raise ValueError("Cannot unpad, data length is not a multiple of the block size")
+
         n = data[-1]
-        if n > bs:
+        if n == 0 or n > bs:
             raise ValueError("Cannot unpad, invalid padding length of "+str(n)+" bytes")
-        else:
-            return data[:l-n]
+
+        # Verify that every padding byte equals the padding length, so that
+        # malformed or tampered padding is rejected instead of silently accepted.
+        if data[l-n:] != bytes([n])*n:
+            raise ValueError("Cannot unpad, invalid padding bytes")
+
+        return data[:l-n]
